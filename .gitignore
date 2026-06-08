@@ -11,6 +11,11 @@ backend/.env
 backend/chroma_db/
 backend/database.sqlite
 
+# Claude
+CLAUDE.md
+AGENTS.md
+.claude/
+
 # Misc
 .DS_Store
 *.log
