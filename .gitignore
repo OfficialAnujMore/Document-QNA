@@ -1,0 +1,16 @@
+node_modules/
+
+# Frontend
+frontend/.next/
+frontend/out/
+frontend/.env.local
+
+# Backend
+backend/dist/
+backend/.env
+backend/chroma_db/
+backend/database.sqlite
+
+# Misc
+.DS_Store
+*.log
