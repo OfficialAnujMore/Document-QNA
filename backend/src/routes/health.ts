@@ -8,6 +8,7 @@ router.get("/health", (_req: Request, res: Response) => {
   res.json({
     status: "ok",
     timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
     message: "Document Q&A backend is running",
   });
 });

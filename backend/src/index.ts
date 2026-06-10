@@ -1,24 +1,30 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import dotenv from "dotenv";
-import healthRouter from "./routes/health";
+import { config } from "./config";
 import { logger } from "./utils/logger";
-
-dotenv.config();
+import { AppError } from "./utils/errors";
+import { testConnection } from "./db/connection";
+import { setupDatabase } from "./db/setup";
+import healthRouter from "./routes/health";
+import uploadRouter from "./routes/upload";
+import chatRouter from "./routes/chat";
+import sessionsRouter from "./routes/sessions";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  origin: config.frontendUrl,
   credentials: true,
 }));
 app.use(morgan("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 app.use("/api", healthRouter);
+app.use("/api/upload", uploadRouter);
+app.use("/api/chat", chatRouter);
+app.use("/api/sessions", sessionsRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ error: "Route not found" });
@@ -26,12 +32,25 @@ app.use((_req, res) => {
 
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   logger.error("Unhandled error", err);
-  res.status(500).json({ error: "Internal server error" });
+  const statusCode = err instanceof AppError ? err.statusCode : 500;
+  res.status(statusCode).json({ error: err.message || "Internal server error" });
 });
 
-app.listen(PORT, () => {
-  logger.info(`Backend server running on http://localhost:${PORT}`);
-  logger.info(`Environment: ${process.env.NODE_ENV || "development"}`);
-});
+async function start() {
+  try {
+    await testConnection();
+    await setupDatabase();
+  } catch (err) {
+    logger.error("Startup failed", err);
+    process.exit(1);
+  }
+
+  app.listen(config.port, () => {
+    logger.info(`Backend server running on http://localhost:${config.port}`);
+    logger.info(`Environment: ${config.nodeEnv}`);
+  });
+}
+
+start();
 
 export default app;
