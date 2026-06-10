@@ -6,6 +6,7 @@ import { logger } from "./utils/logger";
 import { AppError } from "./utils/errors";
 import { testConnection } from "./db/connection";
 import { setupDatabase } from "./db/setup";
+import { initPinecone } from "./db/pinecone";
 import healthRouter from "./routes/health";
 import uploadRouter from "./routes/upload";
 import chatRouter from "./routes/chat";
@@ -40,6 +41,7 @@ async function start() {
   try {
     await testConnection();
     await setupDatabase();
+    await initPinecone();
   } catch (err) {
     logger.error("Startup failed", err);
     process.exit(1);

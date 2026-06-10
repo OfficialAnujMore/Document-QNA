@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const REQUIRED_VARS = ["OPENAI_API_KEY", "DATABASE_URL"];
+const REQUIRED_VARS = ["OPENAI_API_KEY", "DATABASE_URL", "PINECONE_API_KEY"];
 
 function validateConfig() {
   const missing = REQUIRED_VARS.filter((v) => !process.env[v]);
@@ -19,6 +19,7 @@ export const config = {
   frontendUrl: process.env.FRONTEND_URL || "http://localhost:3000",
   openaiApiKey: process.env.OPENAI_API_KEY as string,
   databaseUrl: process.env.DATABASE_URL as string,
-  chromaPath: process.env.CHROMA_PATH || "./chroma_db",
+  pineconeApiKey: process.env.PINECONE_API_KEY as string,
+  pineconeIndex: process.env.PINECONE_INDEX || "documents",
   debug: process.env.DEBUG === "true",
 };
