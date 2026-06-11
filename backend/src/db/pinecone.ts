@@ -46,7 +46,7 @@ export async function addChunks(
   // Pinecone recommends batches of 100 max
   const BATCH_SIZE = 100;
   for (let i = 0; i < vectors.length; i += BATCH_SIZE) {
-    await idx.upsert(vectors.slice(i, i + BATCH_SIZE));
+    await idx.upsert({ records: vectors.slice(i, i + BATCH_SIZE) });
   }
 
   logger.info("Stored chunks in Pinecone", { sessionId, filename, count: chunks.length });
@@ -77,6 +77,6 @@ export async function queryChunks(
 // Removes all stored chunks for a session — called when a session is deleted.
 export async function deleteSessionChunks(sessionId: number): Promise<void> {
   const idx = getIndex();
-  await idx.deleteMany({ session_id: sessionId });
+  await idx.deleteMany({ filter: { session_id: sessionId } });
   logger.info("Deleted Pinecone chunks for session", { sessionId });
 }
